@@ -153,8 +153,17 @@ def serve():
     handler = http.server.SimpleHTTPRequestHandler
     port = 8080
     with socketserver.TCPServer(("", port), handler) as httpd:
-        print(f"Serving directory at http://localhost:{port}")
-        httpd.serve_forever()
+        # Enable address reuse to avoid "Address already in use" errors
+        httpd.socket.setsockopt(socketserver.socket.SOL_SOCKET, 
+                                socketserver.socket.SO_REUSEADDR, 1)
+        
+        # Catch keyboard interrupt and exit gracefully
+        try:
+            print(f"Serving `/docs` directory at http://localhost:{port}")
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            print("Keyboard interrupt detected. Exiting...")
+        httpd.server_close()
 
 
 def clean():
