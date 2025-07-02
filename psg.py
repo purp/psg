@@ -1,14 +1,14 @@
 #!/bin/env python3
 
-import http.server
 import os
 import shutil
-import socketserver
 import subprocess
 import sys
 import textwrap
 import time
 
+from http.server import SimpleHTTPRequestHandler
+from socketserver import TCPServer, socket
 
 help = """
 usage: psg [command]
@@ -150,12 +150,10 @@ def serve():
 
     os.chdir('./docs/')
 
-    handler = http.server.SimpleHTTPRequestHandler
     port = 8080
-    with socketserver.TCPServer(("", port), handler) as httpd:
+    with TCPServer(("", port), SimpleHTTPRequestHandler) as httpd:
         # Enable address reuse to avoid "Address already in use" errors
-        httpd.socket.setsockopt(socketserver.socket.SOL_SOCKET, 
-                                socketserver.socket.SO_REUSEADDR, 1)
+        httpd.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         
         # Catch keyboard interrupt and exit gracefully
         try:
